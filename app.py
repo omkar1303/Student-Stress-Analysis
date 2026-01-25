@@ -134,11 +134,26 @@ if 'last_pred' in st.session_state:
             st.warning("Correction Saved! The model will learn from this error.")
 
 st.markdown("---")
+st.subheader("📊 Live Feedback Data")
+try:
+    # Show data directly from DB to prove it works
+    conn_str = f"sqlite:///{DB_NAME}"
+    engine = create_engine(conn_str)
+    with engine.connect() as conn:
+        df_view = pd.read_sql(f"SELECT * FROM {TABLE_NAME} ORDER BY created_at DESC", conn)
+        st.dataframe(df_view)
+        
+        # Download Button
+        with open(DB_NAME, "rb") as file:
+            btn = st.download_button(
+                label="📥 Download Database File",
+                data=file,
+                file_name="student_stress.db",
+                mime="application/x-sqlite3"
+            )
+except Exception as e:
+    st.error(f"Could not load data: {e}")
+
 if os.path.exists(FEEDBACK_FILE):
-    try:
-        fb_df = pd.read_csv(FEEDBACK_FILE)
-        st.caption(f"Total verified samples collected: {len(fb_df)}")
-        with st.expander("View Collected Feedback Data"):
-            st.dataframe(fb_df.tail())
-    except:
-        pass
+    # Optional: Keep showing CSV count or remove if confusing
+    pass
