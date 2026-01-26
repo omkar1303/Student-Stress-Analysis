@@ -10,20 +10,35 @@ Student-Stress-Analysis-and-Prediction/
 ├── dataset/
 
 │   └── student_stress_data.csv
+
 │
+
 ├── notebooks/
+
 │   └── stress_analysis_and_prediction.ipynb
+
 │
+
 ├── src/
+
 │   ├── data_preprocessing.py
+
 │   ├── model_training.py
+
 │   └── stress_prediction.py
+
 │
+
 ├── results/
+
 │   └── visualizations_and_evaluation/
+
 │
+
 ├── requirements.txt
+
 ├── README.md
+
 └── app.py   (optional – for deployment)
 
 # Methodology
