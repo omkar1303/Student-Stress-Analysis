@@ -1,4 +1,4 @@
-# Student Stress Analysis
+# Student Stress Analysis and Prediction
 
 # Overview
 Student Stress Analysis and Prediction is a data-driven project designed to analyze stress levels among students and predict potential stress outcomes using machine learning techniques. With increasing academic demands and lifestyle pressures, student mental health has become an important area of concern. This project aims to identify key factors contributing to stress and provide early predictions that can help institutions, educators, and students take proactive measures to improve well-being and academic performance.
