@@ -4,40 +4,12 @@
 Student Stress Analysis and Prediction is a data-driven project designed to analyze stress levels among students and predict potential stress outcomes using machine learning techniques. With increasing academic demands and lifestyle pressures, student mental health has become an important area of concern. This project aims to identify key factors contributing to stress and provide early predictions that can help institutions, educators, and students take proactive measures to improve well-being and academic performance.
 
 # Project Structure
-Student-Stress-Analysis-and-Prediction/
-│
-├── dataset/
+The project is organized in a modular manner to ensure clarity and maintainability. The dataset directory contains the student data used for stress analysis and prediction. 
+The notebooks folder includes Jupyter notebooks for exploratory data analysis and initial model experimentation.
 
-│   └── student_stress_data.csv
-│
-
-├── notebooks/
-
-│   └── stress_analysis_and_prediction.ipynb
-
-│
-
-├── src/
-
-│   ├── data_preprocessing.py
-
-│   ├── model_training.py
-
-│   └── stress_prediction.py
-
-│
-
-├── results/
-
-│   └── visualizations_and_evaluation/
-
-│
-
-├── requirements.txt
-
-├── README.md
-
-└── app.py   (optional – for deployment)
+The src directory holds the core Python scripts responsible for data preprocessing, model training, and stress prediction. 
+The results directory stores visualizations and evaluation metrics generated during analysis. 
+Supporting files such as requirements.txt manage project dependencies, while README.md provides documentation. An optional app.py file is included for deploying the model as an application.
 
 # Methodology
 1.**Data Collection**
