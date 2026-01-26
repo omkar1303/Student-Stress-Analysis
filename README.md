@@ -27,12 +27,16 @@ Student-Stress-Analysis-and-Prediction/
 # Methodology
 1.**Data Collection**
 The dataset includes student-related attributes such as academic workload, sleep duration, study hours, mental health indicators, and lifestyle habits.
+
 2.**Data Preprocessing**
 Data cleaning techniques were applied to handle missing values, encode categorical features, and normalize numerical variables for consistent model performance.
+
 3.**Exploratory Data Analysis (EDA)**
 Statistical analysis and data visualization were used to understand stress patterns and identify relationships between different contributing factors.
+
 4.**Model Training and Prediction**
 Machine learning models were trained on the processed data to predict student stress levels. The dataset was divided into training and testing subsets to ensure unbiased evaluation.
+
 5.**Model Evaluation**
 Model performance was assessed using accuracy and other standard metrics to validate the reliability of predictions.
 
