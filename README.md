@@ -6,11 +6,9 @@ Student Stress Analysis and Prediction is a data-driven project designed to anal
 # Project Structure
 Student-Stress-Analysis-and-Prediction/
 │
-
 ├── dataset/
 
 │   └── student_stress_data.csv
-
 │
 
 ├── notebooks/
