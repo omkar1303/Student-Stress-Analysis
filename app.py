@@ -68,7 +68,7 @@ def save_feedback(data, predicted, actual):
     # 2. Save to DB (Real-time)
     save_to_db(feedback_entry)
 
-st.title("Student Stress Prevention System 🧠")
+st.title("Student Stress Prediction 🧠")
 st.markdown("High-Precision Prediction")
 
 with st.form("prediction_form"):
