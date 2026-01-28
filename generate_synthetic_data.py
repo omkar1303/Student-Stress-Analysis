@@ -12,53 +12,56 @@ except FileNotFoundError:
     print(f"Error: {input_file} not found.")
     exit()
 
-# 2. Define Generation Logic
-# We will generate synthetic data by maintaining the distribution of each column.
-# Note: This simple method assumes independence between features. 
-# For more complex relationships, libraries like SDV (Synthetic Data Vault) are recommended.
 
-num_samples = 1000  # How many new rows to generate
-synthetic_data = {}
+# 2. Define Generation Logic (Data Augmentation / Jittering)
+# Instead of generating columns independently, we sample real rows and add noise.
+# This preserves correlations (e.g., high study time -> high marks).
 
-print(f"Generating {num_samples} new synthetic samples...")
+num_samples = 1500  # Increased sample size
+print(f"Generating {num_samples} new synthetic samples using Data Augmentation...")
 
-for col in df.columns:
-    # Check if column is numeric
-    if pd.api.types.is_numeric_dtype(df[col]):
-        # Generate random values based on mean and std, preserving original range
-        mean = df[col].mean()
-        std = df[col].std()
+# numeric columns to jitter
+numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+# categorical columns to keep (or potentially swap)
+categorical_cols = df.select_dtypes(exclude=[np.number]).columns.tolist()
+
+new_rows = []
+
+for _ in range(num_samples):
+    # 1. Sample a random existing student
+    random_row = df.sample(n=1).iloc[0].copy()
+    
+    # 2. Add Noise to Numeric Columns (Jittering)
+    for col in numeric_cols:
+        original_val = random_row[col]
+        std_dev = df[col].std()
         
-        # Determine min/max to cap values
+        # Inject 5% to 15% noise based on standard deviation
+        noise = np.random.normal(0, std_dev * 0.1) 
+        new_val = original_val + noise
+        
+        # Cap values within realistic global min/max
         min_val = df[col].min()
         max_val = df[col].max()
+        new_val = np.clip(new_val, min_val, max_val)
         
-        # Generate normal distribution and clip
-        syn_col = np.random.normal(loc=mean, scale=std, size=num_samples)
-        syn_col = np.clip(syn_col, min_val, max_val)
-        
-        # If original was integer, round the synthetic ones
+        # Round if original was integer
         if pd.api.types.is_integer_dtype(df[col]):
-            syn_col = np.round(syn_col).astype(int)
+            new_val = int(round(new_val))
             
-        synthetic_data[col] = syn_col
+        random_row[col] = new_val
         
-    else:
-        # For categorical, sample based on probability distribution of original data
-        # Check if probability sum to 1.0 (sometimes float precision issues)
-        probs = df[col].value_counts(normalize=True)
-        # Normalize just in case
-        probs = probs / probs.sum()
-        syn_col = np.random.choice(probs.index, size=num_samples, p=probs.values)
-        synthetic_data[col] = syn_col
+    # 3. Categorical perturbation (Optional: 5% chance to flip a category)
+    # For now, we keep categorical same to maintain profile consistency
+    # (e.g. keeps "Department" matched with "Degree preference" if correlated)
+    
+    new_rows.append(random_row)
 
-# 3. Create DataFrame and Save
-df_syn = pd.DataFrame(synthetic_data)
+df_syn = pd.DataFrame(new_rows)
 
-# Combine with original if desired, or save separately. Here we verify balance.
+# 3. Save
+df_syn.to_csv(output_file, index=False)
 print("Synthetic Data Head:")
 print(df_syn.head())
+print(f"\nSuccessfully saved {len(df_syn)} high-quality synthetic samples to {output_file}")
 
-# Save
-df_syn.to_csv(output_file, index=False)
-print(f"\nSuccessfully saved synthetic data to {output_file}")

@@ -73,10 +73,59 @@ columns_to_minmax = ['height', 'weight', 'mark10th', 'mark12th', 'collegemark', 
 columns_to_std = ['salexpect']
 
 # Ensure numeric columns
+# Convert Categorical Time to Numeric
+print("Converting time ranges to numbers...")
+
+# Study Time Mapping
+study_map = {
+    '<1 hr': 0.5,
+    '1-2 hrs': 1.5,
+    '2-4 hrs': 3.0,
+    '>4 hrs': 5.0
+}
+X['studytime'] = X['studytime'].map(study_map).fillna(0)
+
+# Travel Time Mapping
+travel_map = {
+    '<30 min': 0.25,
+    '30-60 min': 0.75,
+    '1-2 hrs': 1.5,
+    '>2 hrs': 2.5
+}
+# Handle potential variations from synthetic data if any
+X['travel'] = X['travel'].map(travel_map)
+# If synthetic data introduced exact matches only, fine. If not, fillna.
+X['travel'] = X['travel'].fillna(0.5) # Default to low travel if unknown
+
+# Ensure numeric columns
 for col in columns_to_minmax + columns_to_std:
-    if col in X.columns:
+    if col in X.columns and col not in ['studytime']: # studytime already handled
         X[col] = pd.to_numeric(X[col], errors='coerce')
 X.fillna(0, inplace=True)
+
+# Feature Engineering (NEW)
+print("Engineering new features...")
+# 1. Academic Average
+X['avg_mark'] = (X['mark10th'] + X['mark12th'] + X['collegemark']) / 3.0
+
+# 2. Study Efficiency (Marks per hour of study) - Avoid div by zero
+X['efficiency'] = X['avg_mark'] / (X['studytime'] + 1.0)
+
+# 3. Time Pressure (Study + Travel)
+X['total_time'] = X['studytime'] + X['travel']
+
+# 4. BMI (Body Mass Index) - Physical health proxy
+# Height is in CM, convert to M
+X['bmi'] = X['weight'] / ((X['height'] / 100.0) ** 2)
+X['bmi'] = X['bmi'].replace([np.inf, -np.inf], 0).fillna(0)
+
+# Update lists for scaling
+# Note: studytime and travel are now numeric, make sure they are scaled if needed.
+# studytime was already in columns_to_minmax.
+# travel was not. Let's add it.
+columns_to_minmax.extend(['avg_mark', 'efficiency', 'total_time', 'bmi', 'travel'])
+
+
 
 # Feature Engineering / Encoding
 print("Encoding features...")
@@ -132,10 +181,11 @@ print(classification_report(y_test, y_pred_xgb))
 # 6. Hyperparameter Tuning (GridSearch)
 print("Performing Grid Search for XGBoost...")
 param_grid = {
-    'n_estimators': [100, 200],
-    'max_depth': [3, 5, 7],
-    'learning_rate': [0.05, 0.1, 0.2],
-    'subsample': [0.8, 1.0]
+    'n_estimators': [100, 200, 300],
+    'max_depth': [3, 5, 7, 9],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'subsample': [0.7, 0.8, 1.0],
+    'colsample_bytree': [0.8, 1.0] 
 }
 
 grid_search = GridSearchCV(
@@ -160,5 +210,14 @@ print("Accuracy:", accuracy_score(y_test, y_pred_best))
 print(classification_report(y_test, y_pred_best))
 
 # Save Model
+# Save Model
 best_model.save_model("student_stress_model.json")
 print("\nModel saved to 'student_stress_model.json'")
+
+# Save Artifacts for App
+import joblib
+joblib.dump(scaler_minmax, 'scaler_minmax.pkl')
+joblib.dump(scaler_std, 'scaler_std.pkl')
+joblib.dump(list(X.columns), 'model_columns.pkl')
+print("Artifacts saved: scaler_minmax.pkl, scaler_std.pkl, model_columns.pkl")
+
